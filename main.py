@@ -1,7 +1,24 @@
 from fastapi import FastAPI
+import boto3
+from google import genai
+
+
+ssm_client = boto3.client("ssm", region_name="us-east-1")
+
+def get_parameter(name: str):
+    try:
+        response = ssm_client.get_parameter(Name=name, WithDecryption=True)
+        return response["Parameter"]["Value"]
+    except Exception as e:
+        print(f"An Error occurred: {str(e)}")
 
 app = FastAPI()
-
+google_api_key = get_parameter("/simple-fastapi/GOOGLE_API_KEY")
+gemini_client = genai.Client(api_key=google_api_key)
 @app.get("/")
 def read_root():
-    return {"message": "Hello, FastAPI!"}
+    response = gemini_client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents="explain something interesting"
+    )
+    return {"message": response.text}
