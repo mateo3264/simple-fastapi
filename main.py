@@ -31,11 +31,13 @@ def read_root():
     )
     return {"message": response.text}
 
+messages = []
 @app.post("/")
 def query_llm(item: Item):
+    messages.append({"role":"user", "content": item.query})
     response = gemini_client.models.generate_content(
         model="gemini-1.5-flash-8b",
-        contents=item.query
+        contents=messages
     )
-
+    messages.append({"role": "assistant", "content": response.text})
     return {"message": response.text}
