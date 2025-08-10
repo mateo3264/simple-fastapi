@@ -37,3 +37,5 @@ def query_llm(item: Item):
         model="gemini-1.5-flash-8b",
         contents=item.query
     )
+
+    return {"message": response.text}
