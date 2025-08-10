@@ -22,6 +22,7 @@ gemini_client = genai.Client(api_key=google_api_key)
 
 class Item(BaseModel):
     query: str
+    
 
 @app.get("/")
 def read_root():
@@ -40,4 +41,5 @@ def query_llm(item: Item):
         contents=messages
     )
     messages.append({"role": "assistant", "parts": [{"text":response.text}]})
-    return {"message": response.text}
+    context = "\n---\n".join([m["parts"][0]["text"] for m in messages])
+    return {"message": response.text, "context": context}
