@@ -34,10 +34,10 @@ def read_root():
 messages = []
 @app.post("/")
 def query_llm(item: Item):
-    messages.append({"role":"user", "content": item.query})
+    messages.append({"role":"user", "parts": [{"text":item.query}]})
     response = gemini_client.models.generate_content(
         model="gemini-1.5-flash-8b",
         contents=messages
     )
-    messages.append({"role": "assistant", "content": response.text})
+    messages.append({"role": "assistant", "parts": [{"text":response.text}]})
     return {"message": response.text}
