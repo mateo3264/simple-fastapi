@@ -41,5 +41,5 @@ def query_llm(item: Item):
         contents=messages
     )
     messages.append({"role": "assistant", "parts": [{"text":response.text}]})
-    context = "\n---\n".join([m["parts"][0]["text"] for m in messages])
+    context = "\n---\n".join([m["parts"][0]["text"] for m in messages[-6:]])
     return {"message": response.text, "context": context}
