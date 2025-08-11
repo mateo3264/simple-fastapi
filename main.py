@@ -35,11 +35,12 @@ def read_root():
 messages = []
 @app.post("/")
 def query_llm(item: Item):
+    messages = messages[-6:]
     messages.append({"role":"user", "parts": [{"text":item.query}]})
     response = gemini_client.models.generate_content(
         model="gemini-1.5-flash-8b",
         contents=messages
     )
     messages.append({"role": "assistant", "parts": [{"text":response.text}]})
-    context = "\n---\n".join([m["parts"][0]["text"] for m in messages[-6:]])
+    context = "\n---\n".join([m["parts"][0]["text"] for m in messages])
     return {"message": response.text, "context": context}
