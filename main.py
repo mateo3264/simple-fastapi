@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import boto3
 from google import genai
 from pydantic import BaseModel
-import torch
+# import torch
 from typing import List
 import onnxruntime as ort
 import numpy as np
@@ -52,19 +52,19 @@ def query_llm(item: Item):
     return {"message": response.text, "context": context}
 
 
-model = torch.jit.load("my_simple_nn.pt")
-model.eval()
-@app.post("/pytorch_simple_nn")
-def query_pytorch_nn(item: PytorchItem):
-    print("item")
-    print(item)
-    tensor = torch.tensor(item.input)
-    print(tensor)
-    print(tensor.shape)
-    with torch.no_grad():
-        result = model(tensor)
+# model = torch.jit.load("my_simple_nn.pt")
+# model.eval()
+# @app.post("/pytorch_simple_nn")
+# def query_pytorch_nn(item: PytorchItem):
+#     print("item")
+#     print(item)
+#     tensor = torch.tensor(item.input)
+#     print(tensor)
+#     print(tensor.shape)
+#     with torch.no_grad():
+#         result = model(tensor)
     
-    return {"result": result.tolist()}
+#     return {"result": result.tolist()}
 
 session = ort.InferenceSession("my_simple_model.onnx")
 @app.post("/onnx_simple_nn")
