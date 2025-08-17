@@ -4,6 +4,8 @@ from google import genai
 from pydantic import BaseModel
 import torch
 from typing import List
+import onnxruntime as ort
+import numpy as np
 
 
 ssm_client = boto3.client("ssm", region_name="us-east-1",
@@ -63,3 +65,13 @@ def query_pytorch_nn(item: PytorchItem):
         result = model(tensor)
     
     return {"result": result.tolist()}
+
+session = ort.InferenceSession("my_simple_model.onnx")
+@app.post("/onnx_simple_nn")
+def query_onnx_nn(item: PytorchItem):
+    input_array = np.array(item.input, dtype=np.float32).reshape(1, 4, 4)
+    inputs = {session.get_inputs()[0].name: input_array}
+    outputs = session.run(None, inputs)
+    print("outputs")
+    print(outputs[0])
+    return {"prediction": outputs[0].tolist()}
