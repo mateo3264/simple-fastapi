@@ -2,6 +2,8 @@ from fastapi import FastAPI
 import boto3
 from google import genai
 from pydantic import BaseModel
+import torch
+from typing import List
 
 
 ssm_client = boto3.client("ssm", region_name="us-east-1",
@@ -22,7 +24,9 @@ gemini_client = genai.Client(api_key=google_api_key)
 
 class Item(BaseModel):
     query: str
-    
+
+class PytorchItem(BaseModel):
+    input: List[List[List[float]]]
 
 @app.get("/")
 def read_root():
@@ -44,3 +48,18 @@ def query_llm(item: Item):
     messages.append({"role": "assistant", "parts": [{"text":response.text}]})
     context = "\n---\n".join([m["parts"][0]["text"] for m in messages])
     return {"message": response.text, "context": context}
+
+
+model = torch.jit.load("my_simple_nn.pt")
+model.eval()
+@app.post("/pytorch_simple_nn")
+def query_pytorch_nn(item: PytorchItem):
+    print("item")
+    print(item)
+    tensor = torch.tensor(item.input)
+    print(tensor)
+    print(tensor.shape)
+    with torch.no_grad():
+        result = model(tensor)
+    
+    return {"result": result.tolist()}
